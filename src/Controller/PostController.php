@@ -27,7 +27,7 @@ class PostController extends AbstractController
         }
     }
 
-    #[Route(path: '/posts', name: 'api_post_index')]
+    #[Route(path: '/posts', name: 'api_posts_index')]
     public function apiIndex(PersistenceManagerRegistry $doctrine): JsonResponse
     {
         $posts = $doctrine->getRepository(Post::class)->findAll();
@@ -41,6 +41,25 @@ class PostController extends AbstractController
                 'author' => $post->getAuthor(),
             ];
         }
+
+        return new JsonResponse($data);
+    }
+
+    #[Route(path: '/posts/{id}', name: 'api_post_show', requirements: ['id' => '\d+'])]
+    public function apiShowPost(int $id, PersistenceManagerRegistry $doctrine): JsonResponse
+    {
+        $post = $doctrine->getRepository(Post::class)->find($id);
+
+        if (!$post) {
+            return new JsonResponse(['message' => 'Nie znaleziono postu o takim id'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $data = [
+            'id' => $post->getId(),
+            'title' => $post->getTitle(),
+            'body' => $post->getBody(),
+            'author' => $post->getAuthor(),
+        ];
 
         return new JsonResponse($data);
     }
