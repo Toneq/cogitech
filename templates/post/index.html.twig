@@ -1,20 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello PostController!{% endblock %}
+{% block title %}Lista Postów{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    {% if app.user %}
+        <div class="mb-3">
+            Jesteś zalogowany jako: {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Wyloguj</a>
+        </div>
+    {% endif %}
+    <h1>Lista Postów</h1>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'C:/xampp/htdocs/cogitech/src/Controller/PostController.php'|file_link(0) }}">src/Controller/PostController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/xampp/htdocs/cogitech/templates/post/index.html.twig'|file_link(0) }}">templates/post/index.html.twig</a></code></li>
-    </ul>
-</div>
+    {% if posts is defined and posts|length > 0 %}
+        <ul>
+            {% for post in posts %}
+                <li>
+                    {{ post.title }} - {{ post.author }}
+                    <a href="{{ path('post_delete', {'id': post.id, '_method': 'DELETE'}) }}" onclick="return confirm('Czy na pewno chcesz usunąć ten post?');">
+                        Usuń post
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Brak postów do wyświetlenia.</p>
+    {% endif %}
 {% endblock %}
