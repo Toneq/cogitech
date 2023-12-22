@@ -19,6 +19,13 @@ class RegistrationController extends AbstractController
             $password = $request->request->get('password');
             $email = $request->request->get('email');
 
+            $existingUser = $doctrine->getRepository(User::class)->findOneBy(['email' => $email]);
+
+            if ($existingUser) {
+                $this->addFlash('danger', 'Użytkownik z tym e-mailem już istnieje.');
+                return $this->redirectToRoute('app_register');
+            }
+
             $user = new User();
             $user->setEmail($email);
             

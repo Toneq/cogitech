@@ -33,6 +33,6 @@ class SecurityController extends AbstractController
     #[Route(path: '/register', name: 'app_register')]
     public function register()
     {
-        return $this->render('registration/index.html.twig', ['error' => 'xd']);
+        return $this->render('registration/index.html.twig');
     }
 }
