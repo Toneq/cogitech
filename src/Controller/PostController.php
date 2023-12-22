@@ -44,4 +44,18 @@ class PostController extends AbstractController
 
         return new JsonResponse($data);
     }
+
+    #[Route(path: '/usun-post/{id}', name: 'post_delete')]
+    public function delete(Request $request, Post $post, PersistenceManagerRegistry $doctrine, Security $security): Response
+    {
+        if ($security->isGranted('ROLE_USER')) {    
+            $entityManager = $doctrine->getManager();
+            $entityManager->remove($post);
+            $entityManager->flush();
+        } else {
+            return $this->redirectToRoute('app_login');
+        }
+        
+        return $this->redirectToRoute('post_index');
+    }
 }
