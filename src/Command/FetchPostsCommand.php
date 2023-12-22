@@ -2,48 +2,54 @@
 
 namespace App\Command;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\HttpClient\HttpClient;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\Post;
+use App\Entity\User;
 
-#[AsCommand(
-    name: 'app:fetch-posts',
-    description: 'Add a short description for your command',
-)]
 class FetchPostsCommand extends Command
 {
-    public function __construct()
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
     {
         parent::__construct();
+
+        $this->entityManager = $entityManager;
     }
 
-    protected function configure(): void
+    protected function configure()
     {
         $this
-            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
-            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
-        ;
+            ->setName('app:fetch-posts')
+            ->setDescription('Uzyskanie postów poprzez API i zapis do db.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $io = new SymfonyStyle($input, $output);
-        $arg1 = $input->getArgument('arg1');
+        $httpClient = HttpClient::create();
+        $response = $httpClient->request('GET', 'https://jsonplaceholder.typicode.com/posts');
+        $postsData = $response->toArray();
 
-        if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
+        foreach ($postsData as $postData) {
+            $userResponse = $httpClient->request('GET', 'https://jsonplaceholder.typicode.com/users/'.$postData['userId']);
+            $userData = $userResponse->toArray();
+
+            $post = new Post();
+            $post->setTitle($postData['title']);
+            $post->setBody($postData['body']);
+            $post->setAuthor($userData["name"]);
+
+            $this->entityManager->persist($post);
         }
 
-        if ($input->getOption('option1')) {
-            // ...
-        }
+        $this->entityManager->flush();
 
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
+        $output->writeln('Wszystkie posty zostały wgrane do bazy danych.');
 
-        return Command::SUCCESS;
+        return 0;
     }
 }
