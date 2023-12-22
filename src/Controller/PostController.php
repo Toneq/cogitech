@@ -46,8 +46,12 @@ class PostController extends AbstractController
     }
 
     #[Route(path: '/posts/{id}', name: 'api_post_show', requirements: ['id' => '\d+'])]
-    public function apiShowPost(int $id, PersistenceManagerRegistry $doctrine): JsonResponse
+    public function apiShowPost($id, PersistenceManagerRegistry $doctrine): JsonResponse
     {
+        if (!is_numeric($id)) {
+            return new JsonResponse(['message' => 'API przyjmuje tylko ID numeryczne.'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
         $post = $doctrine->getRepository(Post::class)->find($id);
 
         if (!$post) {
