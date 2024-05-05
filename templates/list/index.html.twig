@@ -5,6 +5,12 @@
 {% block title %}List{% endblock %}
 
 {% block body %}
+    {% if app.user %}
+        <div class="mb-3">
+            Jesteś zalogowany jako: {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Wyloguj się</a>
+        </div>
+    {% endif %}
+
     <h1>Lista</h1>
 
     <table>
