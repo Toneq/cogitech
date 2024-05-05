@@ -1,5 +1,5 @@
 api_platform:
-    title: Hello API Platform
+    title: Zadanie rekrutacyjne dla firmy COGITECH by Tobiasz Tonn
     version: 1.0.0
     formats:
         jsonld: ['application/ld+json']
@@ -16,3 +16,7 @@ api_platform:
             rfc_7807_compliant_errors: true
     event_listeners_backward_compatibility_layer: false
     keep_legacy_inflector: false
+    mapping:
+        paths: 
+            - '%kernel.project_dir%/src/Entity'
+            - '%kernel.project_dir%/config/api_platform'
